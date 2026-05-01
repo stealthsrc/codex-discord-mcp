@@ -29,21 +29,21 @@ New-Item -ItemType Directory -Force -Path $ConfigDir | Out-Null
 $envPath = Join-Path $ConfigDir ".env"
 $dbPath = Join-Path $ConfigDir "codex_discord.db"
 $escapedWorkdir = $workdir.Replace("\", "\\")
-
-@"
-DISCORD_TOKEN=$discordToken
-DISCORD_CLIENT_ID=$clientId
-CODEX_EXECUTABLE=$codexExecutable
-CODEX_WORKDIR=$workdir
-CODEX_WORKSPACES={"default":"$escapedWorkdir"}
-CODEX_DEFAULT_WORKSPACE=default
-CODEX_DISCORD_RUNTIME=exec
-CODEX_DB_PATH=$dbPath
-ENABLE_HEALTH=1
-HEALTH_PORT=8080
-LOG_LEVEL=INFO
-LOG_JSON=0
-"@ | Set-Content -Path $envPath -Encoding utf8
+$envLines = @(
+    "DISCORD_TOKEN=$discordToken",
+    "DISCORD_CLIENT_ID=$clientId",
+    "CODEX_EXECUTABLE=$codexExecutable",
+    "CODEX_WORKDIR=$workdir",
+    "CODEX_WORKSPACES={""default"":""$escapedWorkdir""}",
+    "CODEX_DEFAULT_WORKSPACE=default",
+    "CODEX_DISCORD_RUNTIME=exec",
+    "CODEX_DB_PATH=$dbPath",
+    "ENABLE_HEALTH=1",
+    "HEALTH_PORT=8080",
+    "LOG_LEVEL=INFO",
+    "LOG_JSON=0"
+)
+$envLines | Set-Content -Path $envPath -Encoding utf8
 
 $permissions = 274877975552
 $invite = "https://discord.com/oauth2/authorize?client_id=$clientId&scope=bot%20applications.commands&permissions=$permissions"
