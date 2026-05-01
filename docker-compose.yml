@@ -1,0 +1,41 @@
+services:
+  bot:
+    build:
+      context: .
+      args:
+        CODEX_INSTALL_CMD: ${CODEX_INSTALL_CMD:-echo "(no codex installer provided)"}
+    image: codex-discord-mcp:latest
+    container_name: codex-discord-bot
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      ENABLE_HEALTH: "1"
+      ENABLE_METRICS: "1"
+      LOG_JSON: "1"
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    volumes:
+      - codex-data:/data
+      - ${WORKSPACE_HOST_PATH:-./workspace}:/data/workspace
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  mcp:
+    image: codex-discord-mcp:latest
+    container_name: codex-discord-mcp
+    restart: "no"
+    profiles: ["mcp"]
+    env_file: .env
+    command: ["codex-discord-mcp"]
+    stdin_open: true
+    tty: false
+    volumes:
+      - codex-data:/data
+      - ${WORKSPACE_HOST_PATH:-./workspace}:/data/workspace
+
+volumes:
+  codex-data:
